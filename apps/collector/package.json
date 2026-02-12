@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "echo Collector is Python — no JS build",
-    "dev": "echo Run: cd apps/collector && uvicorn src.main:app --reload",
+    "dev": "echo Collector: run in a separate terminal: cd apps/collector && .venv\\Scripts\\activate && uvicorn src.main:app --reload --port 8000",
     "lint": "ruff check src",
     "clean": "echo ok"
   }
