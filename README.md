@@ -1,38 +1,69 @@
 # RegTech Radar
 
-Regulatory Intelligence Platform for FinTech — B2B SaaS to track regulatory changes (DORA, MiCA, PSD3, AMLA, FATF, etc.), AI summaries, impact analysis, and weekly digest.
+**Regulatory Intelligence Platform** — FinTech şirketlerinin takip etmesi gereken regülasyon değişikliklerini (DORA, MiCA, PSD3, AMLA, FATF vb.) otomatik toplayan, AI ile özetleyen, şirket profiline göre etki analizi yapan ve haftalık bülten + dashboard olarak sunan B2B SaaS.
 
-## Monorepo structure (Turborepo)
+- **Versiyon:** 0.1.0 (MVP)  
+- **Tek kaynak:** [regtech.md](./regtech.md) — ürün, mimari, veri modeli, tech stack
 
-- **apps/web** — Next.js 14 (App Router), dashboard, auth, feed, search, settings
-- **apps/collector** — Python FastAPI backend: crawlers, AI pipeline, Celery tasks
-- **packages/shared** — Shared TypeScript types and constants
+---
 
-## Prerequisites
+## Monorepo yapısı (Turborepo)
 
-- Node.js 18+
-- npm 10+ (or pnpm/yarn)
-- Python 3.12+
-- PostgreSQL 16, Redis 7 (for full stack)
+| Paket | Açıklama |
+|-------|----------|
+| **apps/web** | Next.js 14 (App Router), dashboard, auth, feed, search, settings |
+| **apps/collector** | Python FastAPI: crawlers, AI pipeline, Celery |
+| **packages/shared** | Paylaşılan TypeScript tipleri ve sabitler (domains, jurisdictions) |
 
-## Quick start
+```
+regtech-radar/
+├── apps/web/          # Next.js frontend
+├── apps/collector/   # Python backend (sources, processing, api)
+├── packages/shared/   # @regtech-radar/shared
+├── turbo.json
+├── package.json
+└── .env.example
+```
 
-### Root (install and build shared + web)
+---
+
+## Gereksinimler
+
+- **Node.js** 18+
+- **npm** 10+ (veya pnpm/yarn)
+- **Python** 3.12+
+- **PostgreSQL** 16, **Redis** 7 (tam stack için)
+
+---
+
+## Ortam (.env)
+
+```bash
+cp .env.example .env
+```
+
+`.env` içindeki değerleri doldur. Tüm değişkenler [regtech.md Bölüm 13](./regtech.md) ile uyumludur.
+
+---
+
+## Hızlı başlangıç
+
+### Kök: kurulum ve build
 
 ```bash
 npm install
 npm run build
 ```
 
-### Web app
+### Web uygulaması
 
 ```bash
-cd apps/web && npm run dev
+npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Sadece **web** ve **shared** çalışır; [http://localhost:3000](http://localhost:3000) açılır.
 
-### Collector (API + crawlers)
+### Collector API (ayrı terminal)
 
 ```bash
 cd apps/collector
@@ -42,27 +73,45 @@ pip install -e ".[dev]"
 uvicorn src.main:app --reload --port 8000
 ```
 
-API docs: [http://localhost:8000/docs](http://localhost:8000/docs).
+API dokümantasyonu: [http://localhost:8000/docs](http://localhost:8000/docs).
 
-## Create GitHub repo
+---
 
-1. Create a new repository on GitHub (e.g. `regtech-radar`).
-2. From this folder:
+## Scripts
+
+| Komut | Açıklama |
+|-------|----------|
+| `npm run build` | Tüm paketleri build eder (shared → web) |
+| `npm run dev` | Web + shared watch (collector dahil değil) |
+| `npm run lint` | Lint (turbo) |
+| `npm run format` | Prettier ile format |
+| `npm run clean` | Build çıktılarını temizler |
+
+---
+
+## Dokümantasyon
+
+| Dosya | İçerik |
+|-------|--------|
+| [regtech.md](./regtech.md) | Ürün kimliği, mimari, veri modeli, API, fiyatlandırma, geliştirme kuralları |
+| [regtechradartodolist.md](./regtechradartodolist.md) | Faz bazlı todo listesi (Faz 0–11 + V2) |
+| [docs/CONTRIBUTING.md](./docs/CONTRIBUTING.md) | Kod stili, Git kuralları, geliştirme notları |
+
+---
+
+## GitHub’a gönderme
+
+1. GitHub’da yeni repo oluştur (örn. `regtech-radar`).
+2. Proje kökünde:
 
 ```bash
-git init
-git add .
-git commit -m "chore: monorepo scaffold (Turborepo, apps/web, apps/collector, packages/shared)"
+git remote add origin https://github.com/KULLANICI_ADI/regtech-radar.git
 git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/regtech-radar.git
 git push -u origin main
 ```
 
-## Docs
+---
 
-- [regtech.md](./regtech.md) — Product and architecture (single source of truth)
-- [regtechradartodolist.md](./regtechradartodolist.md) — Todo list
-
-## License
+## Lisans
 
 Proprietary.
