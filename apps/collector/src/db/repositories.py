@@ -95,3 +95,27 @@ def update_source_last_crawled(session: Session, source_id: UUID) -> None:
         {"now": datetime.now(timezone.utc), "id": source_id},
     )
     session.commit()
+
+
+def raw_content_already_processed(session: Session, raw_content_id: UUID) -> bool:
+    """True if a regulatory_update exists for this raw_content_id (content_hash ile tekrar işlemeyi engelleme)."""
+    row = session.execute(
+        text("SELECT 1 FROM regulatory_updates WHERE raw_content_id = :id LIMIT 1"),
+        {"id": raw_content_id},
+    ).fetchone()
+    return row is not None
+
+
+def get_raw_content_ids_pending_processing(session: Session, limit: int = 50) -> list[UUID]:
+    """Raw contents that have no regulatory_update yet (işlenmemiş)."""
+    rows = session.execute(
+        text("""
+            SELECT rc.id FROM raw_contents rc
+            LEFT JOIN regulatory_updates ru ON ru.raw_content_id = rc.id
+            WHERE ru.id IS NULL
+            ORDER BY rc.crawled_at ASC NULLS LAST
+            LIMIT :limit
+        """),
+        {"limit": limit},
+    ).fetchall()
+    return [r[0] for r in rows]
