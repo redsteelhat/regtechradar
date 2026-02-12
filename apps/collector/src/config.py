@@ -7,8 +7,8 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
-    # Database
-    database_url: str = "postgresql://localhost:5432/regtechradar"
+    # Database (varsayılan: docker-compose'taki postgres — user regtech)
+    database_url: str = "postgresql://regtech:regtech@localhost:5432/regtechradar"
     redis_url: str = "redis://localhost:6379/0"
 
     # API

@@ -1,6 +1,6 @@
-# RegTech Radar — Local dev: PostgreSQL 16 (pgvector) + Redis 7
-# Bölüm 5.1 veri modeli ve Celery broker için
-# Kullanım: docker compose up -d  →  DATABASE_URL=postgresql://regtech:regtech@localhost:5432/regtechradar  REDIS_URL=redis://localhost:6379/0
+# RegTech Radar — Docker (sıfırdan)
+# PostgreSQL 16 + pgvector + Redis 7
+# Kullanım: docker compose up -d
 
 services:
   postgres:

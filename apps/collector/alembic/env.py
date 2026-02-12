@@ -10,6 +10,7 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 # DATABASE_URL kullan (sync URL; Alembic sync çalışır)
+# psycopg (v3) kullan — psycopg2 yoksa postgresql+psycopg:// gerekli
 import os
 
 try:
@@ -18,8 +19,11 @@ try:
 except Exception:
     database_url = os.getenv(
         "DATABASE_URL",
-        "postgresql://regtech:regtech@localhost:5432/regtechradar",
+        "postgresql://postgres:regtech@localhost:5432/regtechradar",
     )
+# SQLAlchemy psycopg2 yerine psycopg (v3) kullansın
+if database_url.startswith("postgresql://") and "postgresql+psycopg" not in database_url:
+    database_url = database_url.replace("postgresql://", "postgresql+psycopg://", 1)
 
 config.set_main_option("sqlalchemy.url", database_url)
 
