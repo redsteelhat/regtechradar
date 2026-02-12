@@ -1,0 +1,55 @@
+# RegTech Radar — Source registry (see regtech.md §6)
+sources:
+  - slug: eba
+    name: European Banking Authority
+    base_url: https://www.eba.europa.eu
+    jurisdiction: [EU]
+    crawl_frequency: 6h
+    priority: 1
+    crawl_targets:
+      - url: /regulation-and-policy/single-rulebook/interactive-single-rulebook
+        type: page_list
+      - url: /rss/news
+        type: rss
+  - slug: esma
+    name: European Securities and Markets Authority
+    base_url: https://www.esma.europa.eu
+    jurisdiction: [EU]
+    crawl_frequency: 6h
+    priority: 1
+  - slug: fatf
+    name: Financial Action Task Force
+    base_url: https://www.fatf-gafi.org
+    jurisdiction: [GLOBAL]
+    crawl_frequency: 12h
+    priority: 1
+  - slug: ecb
+    name: European Central Bank
+    base_url: https://www.ecb.europa.eu
+    jurisdiction: [EU]
+    crawl_frequency: 6h
+    priority: 1
+  - slug: fca
+    name: Financial Conduct Authority
+    base_url: https://www.fca.org.uk
+    jurisdiction: [UK]
+    crawl_frequency: 6h
+    priority: 1
+  - slug: fincen
+    name: Financial Crimes Enforcement Network
+    base_url: https://www.fincen.gov
+    jurisdiction: [US]
+    crawl_frequency: 12h
+    priority: 1
+  - slug: bis
+    name: Bank for International Settlements
+    base_url: https://www.bis.org
+    jurisdiction: [GLOBAL]
+    crawl_frequency: 24h
+    priority: 1
+  - slug: eurlex
+    name: EUR-Lex (Official Journal)
+    base_url: https://eur-lex.europa.eu
+    jurisdiction: [EU]
+    crawl_frequency: 24h
+    priority: 1

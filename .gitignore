@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build / Turbo
+.next/
+out/
+dist/
+.turbo/
+
+# Env and secrets
+.env
+.env.local
+.env.*.local
+.env.vault
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs and debug
+*.log
+npm-debug.log*
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Misc
+*.tsbuildinfo

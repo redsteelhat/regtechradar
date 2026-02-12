@@ -1,0 +1,14 @@
+// RegTech Radar — Prisma schema (web app / BFF)
+// Sync with collector DB or use same PostgreSQL; tables: users, company_profiles, sessions, etc.
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// TODO: add models for NextAuth (User, Account, Session) and company_profiles when ready
+// model User { ... }
+// model CompanyProfile { ... }

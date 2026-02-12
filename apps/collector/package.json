@@ -1,0 +1,11 @@
+{
+  "name": "collector",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "echo Collector is Python — no JS build",
+    "dev": "echo Run: cd apps/collector && uvicorn src.main:app --reload",
+    "lint": "ruff check src",
+    "clean": "echo ok"
+  }
+}
