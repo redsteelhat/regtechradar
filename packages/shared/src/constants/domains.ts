@@ -1,5 +1,6 @@
 /**
- * Regulatory domain taxonomy — sync with backend
+ * Regulatory domain taxonomy — Bölüm 5.2 (regtech.md)
+ * Backend ve frontend filtre/dropdown ile senkron tutulur.
  */
 export const REGULATORY_DOMAINS: Record<string, string> = {
   AML_KYC: 'AML/KYC, Sanctions, Beneficial Ownership, Transaction Monitoring',
@@ -14,6 +15,8 @@ export const REGULATORY_DOMAINS: Record<string, string> = {
   MESSAGING: 'ISO 20022, SWIFT, Payment Messaging Standards',
 };
 
+export const REGULATORY_DOMAIN_KEYS = Object.keys(REGULATORY_DOMAINS) as (keyof typeof REGULATORY_DOMAINS)[];
+
 export const UPDATE_TYPES: Record<string, string> = {
   new_regulation: 'Yeni düzenleme/kanun yayınlandı',
   amendment: 'Mevcut düzenlemeye değişiklik',
@@ -27,6 +30,8 @@ export const UPDATE_TYPES: Record<string, string> = {
   market_update: 'Pazar verisi, istatistik raporu',
 };
 
+export const UPDATE_TYPE_KEYS = Object.keys(UPDATE_TYPES) as (keyof typeof UPDATE_TYPES)[];
+
 export const SEVERITY_LEVELS: Record<string, string> = {
   critical: 'Acil aksiyon gerektirir; doğrudan ceza/lisans riski',
   high: '30 gün içinde değerlendirilmeli; önemli operasyonel etki',
@@ -34,3 +39,5 @@ export const SEVERITY_LEVELS: Record<string, string> = {
   low: 'Bilgilendirme; dolaylı veya uzun vadeli etki',
   info: 'Genel bilgi; doğrudan aksiyon gerektirmez',
 };
+
+export const SEVERITY_KEYS = Object.keys(SEVERITY_LEVELS) as (keyof typeof SEVERITY_LEVELS)[];

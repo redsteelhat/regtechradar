@@ -52,6 +52,14 @@ docker compose up -d
 
 PostgreSQL 16 (pgvector, pg_trgm) ve Redis 7 ayağa kalkar. Varsayılan: `DATABASE_URL=postgresql://regtech:regtech@localhost:5432/regtechradar`, `REDIS_URL=redis://localhost:6379/0`.
 
+**Collector’ı da Docker’da çalıştırmak (opsiyonel):**
+
+```bash
+docker compose --profile collector up -d
+```
+
+Collector API http://localhost:8000 adresinde olur; Postgres ve Redis’e compose ağı üzerinden bağlanır.
+
 **Collector migration (Alembic):**
 
 ```bash

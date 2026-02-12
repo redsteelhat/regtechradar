@@ -1,6 +1,7 @@
-# RegTech Radar — Docker (sıfırdan)
-# PostgreSQL 16 + pgvector + Redis 7
+# RegTech Radar — Docker
+# PostgreSQL 16 + pgvector, Redis 7, (opsiyonel) collector
 # Kullanım: docker compose up -d
+# Collector ile: docker compose --profile collector up -d
 
 services:
   postgres:
@@ -33,6 +34,25 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+
+  # Opsiyonel: local collector (API). Profile ile: docker compose --profile collector up -d
+  collector:
+    build:
+      context: ./apps/collector
+      dockerfile: Dockerfile
+    container_name: regtech-collector
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://regtech:regtech@postgres:5432/regtechradar
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    profiles:
+      - collector
 
 volumes:
   postgres_data:
