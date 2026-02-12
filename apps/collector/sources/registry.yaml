@@ -1,55 +1,111 @@
-# RegTech Radar — Source registry (see regtech.md §6)
+# RegTech Radar — Source registry (regtech.md §6)
+# 8 kaynak: EBA, ESMA, FATF, ECB, FCA, FinCEN, BIS, EUR-Lex
+
 sources:
+  # ── Tier A: Regülatörler & Standart Kurumları ──
   - slug: eba
     name: European Banking Authority
     base_url: https://www.eba.europa.eu
     jurisdiction: [EU]
-    crawl_frequency: 6h
-    priority: 1
     crawl_targets:
       - url: /regulation-and-policy/single-rulebook/interactive-single-rulebook
         type: page_list
       - url: /rss/news
         type: rss
+      - url: /regulation-and-policy
+        type: page_crawl
+        depth: 2
+    content_selectors:
+      title: "h1.page-title"
+      body: "div.field-item"
+      date: "span.date-display-single"
+    crawl_frequency: 6h
+    priority: 1
+
   - slug: esma
     name: European Securities and Markets Authority
     base_url: https://www.esma.europa.eu
     jurisdiction: [EU]
+    crawl_targets:
+      - url: /press-news/esma-news
+        type: page_list
+      - url: /document-library
+        type: page_list
     crawl_frequency: 6h
     priority: 1
+
   - slug: fatf
     name: Financial Action Task Force
     base_url: https://www.fatf-gafi.org
     jurisdiction: [GLOBAL]
+    crawl_targets:
+      - url: /en/publications
+        type: page_list
+      - url: /en/topics/fatf-recommendations
+        type: page_crawl
     crawl_frequency: 12h
     priority: 1
+
   - slug: ecb
     name: European Central Bank
     base_url: https://www.ecb.europa.eu
     jurisdiction: [EU]
+    crawl_targets:
+      - url: /press/pr
+        type: page_list
+      - url: /pub/pub/topic/supervision
+        type: page_list
     crawl_frequency: 6h
     priority: 1
+
   - slug: fca
     name: Financial Conduct Authority
     base_url: https://www.fca.org.uk
     jurisdiction: [UK]
+    crawl_targets:
+      - url: /news
+        type: page_list
+      - url: /publications
+        type: page_list
     crawl_frequency: 6h
     priority: 1
+
   - slug: fincen
     name: Financial Crimes Enforcement Network
     base_url: https://www.fincen.gov
     jurisdiction: [US]
+    crawl_targets:
+      - url: /news-room
+        type: page_list
     crawl_frequency: 12h
     priority: 1
+
   - slug: bis
     name: Bank for International Settlements
     base_url: https://www.bis.org
     jurisdiction: [GLOBAL]
+    crawl_targets:
+      - url: /bcbs/publications
+        type: page_list
+      - url: /cpmi/publications
+        type: page_list
     crawl_frequency: 24h
     priority: 1
+
   - slug: eurlex
     name: EUR-Lex (Official Journal)
     base_url: https://eur-lex.europa.eu
     jurisdiction: [EU]
+    crawl_targets:
+      - url: /oj/direct-access.html
+        type: custom  # Needs dedicated parser
     crawl_frequency: 24h
     priority: 1
+
+  # ── Tier B: Ek Kaynaklar (Faz 2'de) ──
+  # - slug: eiopa
+  # - slug: fsb
+  # - slug: iosco
+  # - slug: amla (aktif olunca)
+  # - slug: spk (Türkiye)
+  # - slug: bddk (Türkiye)

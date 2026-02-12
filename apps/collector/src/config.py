@@ -25,5 +25,8 @@ class Settings(BaseSettings):
     crawler_max_concurrent: int = 3
     crawler_request_delay_ms: int = 2000
 
+    # Registry (sources/registry.yaml)
+    registry_path: str = "sources/registry.yaml"
+
 
 settings = Settings()
