@@ -44,6 +44,31 @@ cp .env.example .env
 
 `.env` içindeki değerleri doldur. Tüm değişkenler [regtech.md Bölüm 13](./regtech.md) ile uyumludur.
 
+### Veritabanı (Docker)
+
+```bash
+docker compose up -d
+```
+
+PostgreSQL 16 (pgvector, pg_trgm) ve Redis 7 ayağa kalkar. Varsayılan: `DATABASE_URL=postgresql://regtech:regtech@localhost:5432/regtechradar`, `REDIS_URL=redis://localhost:6379/0`.
+
+**Collector migration (Alembic):**
+
+```bash
+cd apps/collector
+pip install -e ".[dev]"
+alembic upgrade head
+```
+
+**Web migration (Prisma):**
+
+```bash
+cd apps/web
+npx prisma migrate deploy
+# veya geliştirme: npx prisma migrate dev
+npx prisma generate
+```
+
 ---
 
 ## Hızlı başlangıç

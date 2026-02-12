@@ -1,0 +1,39 @@
+# RegTech Radar — Local dev: PostgreSQL 16 (pgvector) + Redis 7
+# Bölüm 5.1 veri modeli ve Celery broker için
+# Kullanım: docker compose up -d  →  DATABASE_URL=postgresql://regtech:regtech@localhost:5432/regtechradar  REDIS_URL=redis://localhost:6379/0
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: regtech-postgres
+    environment:
+      POSTGRES_USER: regtech
+      POSTGRES_PASSWORD: regtech
+      POSTGRES_DB: regtechradar
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infra/init-db.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U regtech -d regtechradar"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: regtech-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  postgres_data:
+  redis_data:
