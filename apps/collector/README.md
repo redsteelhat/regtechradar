@@ -17,6 +17,20 @@ pip install -e ".[dev]"
 uvicorn src.main:app --reload --port 8000
 ```
 
+## Migrations (Alembic)
+
+Veritabanı tabloları (sources, raw_contents, regulatory_updates, vb.) Alembic ile yönetilir.
+
+```bash
+# Proje kökünden
+npm run migrate:collector
+
+# veya bu dizinden
+alembic upgrade head
+```
+
+Config `DATABASE_URL` için `.env`, `../.env`, `../../.env` dosyalarına bakar. Yeni migration: `alembic revision -m "açıklama"`.
+
 ## Tests
 
 ```bash

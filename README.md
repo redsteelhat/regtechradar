@@ -108,6 +108,9 @@ API dokümantasyonu: [http://localhost:8000/docs](http://localhost:8000/docs).
 |-------|----------|
 | `npm run build` | Tüm paketleri build eder (shared → web) |
 | `npm run dev` | Web + shared watch (collector dahil değil) |
+| `npm run migrate` | Prisma + Alembic migration (önce web/auth, sonra collector) |
+| `npm run migrate:collector` | Sadece Alembic (collector tabloları) |
+| `npm run migrate:web` | Sadece Prisma (NextAuth tabloları; kök .env kullanır) |
 | `npm run lint` | Lint (turbo) |
 | `npm run format` | Prettier ile format |
 | `npm run clean` | Build çıktılarını temizler |
@@ -121,6 +124,7 @@ API dokümantasyonu: [http://localhost:8000/docs](http://localhost:8000/docs).
 | [regtech.md](./regtech.md) | Ürün kimliği, mimari, veri modeli, API, fiyatlandırma, geliştirme kuralları |
 | [regtechradartodolist.md](./regtechradartodolist.md) | Faz bazlı todo listesi (Faz 0–11 + V2) |
 | [docs/CONTRIBUTING.md](./docs/CONTRIBUTING.md) | Kod stili, Git kuralları, geliştirme notları |
+| [docs/infra/MIGRATIONS.md](./docs/infra/MIGRATIONS.md) | Alembic + Prisma migration sırası ve komutları |
 
 ---
 
