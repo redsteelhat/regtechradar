@@ -4,8 +4,13 @@ import pytest
 
 from src.sources.fetch_helpers import parse_rss_entries, extract_with_selectors, extract_links_from_list_page
 from src.sources.eba import EBASource
+from src.sources.esma import ESMASource
 from src.sources.fatf import FATFSource
+from src.sources.ecb import ECBSource
 from src.sources.fca import FCASource
+from src.sources.fincen import FinCENSource
+from src.sources.bis import BISSource
+from src.sources.eu_official import EuOfficialSource
 
 
 def test_parse_rss_entries_returns_list():
@@ -66,3 +71,19 @@ def test_eba_fatf_fca_have_fetch():
     assert fca.slug == "fca" and hasattr(fca, "fetch")
     assert eba.content_selectors
     assert eba.crawl_targets
+
+
+def test_all_eight_sources_from_registry_have_fetch():
+    """ESMA, ECB, FinCEN, BIS, EUR-Lex (and EBA, FATF, FCA) build from registry and have fetch()."""
+    from src.sources.registry import load_registry
+    from pathlib import Path
+    base = Path(__file__).resolve().parents[2]
+    configs = load_registry(base / "sources" / "registry.yaml")
+    slugs = ["eba", "esma", "fatf", "ecb", "fca", "fincen", "bis", "eurlex"]
+    classes = [EBASource, ESMASource, FATFSource, ECBSource, FCASource, FinCENSource, BISSource, EuOfficialSource]
+    for slug, cls in zip(slugs, classes):
+        c = next((x for x in configs if x["slug"] == slug), None)
+        assert c is not None, f"registry has {slug}"
+        src = cls.from_registry(c)
+        assert src.slug == slug and hasattr(src, "fetch") and callable(getattr(src, "fetch"))
+        assert src.crawl_targets
