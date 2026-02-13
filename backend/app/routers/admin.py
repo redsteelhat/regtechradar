@@ -13,6 +13,7 @@ from app.models import Regulation, RegulationSource, RegulationCategory, Regulat
 from app.scrapers.base import RegulationItem
 from app.scrapers.eba import EBAScraper
 from app.scrapers.esma import ESMAScraper
+from app.scrapers.ecb import ECBScraper
 from app.scrapers.fatf import FATFScraper
 from app.scrapers.fca import FCAScraper
 from app.scrapers.fincen import FinCENScraper
@@ -22,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
-SCRAPERS = [EBAScraper, ESMAScraper, FATFScraper, FCAScraper, FinCENScraper]
+SCRAPERS = [EBAScraper, ESMAScraper, ECBScraper, FATFScraper, FCAScraper, FinCENScraper]
 
 LICENSE_TYPES = [lt.value for lt in LicenseType if lt != LicenseType.OTHER]
 
@@ -135,7 +136,7 @@ async def _store_regulation(db: AsyncSession, item: RegulationItem) -> int:
 
 
 def _map_source(source: str) -> RegulationSource:
-    mapping = {"EBA": RegulationSource.EBA, "ESMA": RegulationSource.ESMA, "FATF": RegulationSource.FATF, "FCA": RegulationSource.FCA, "FinCEN": RegulationSource.FINCEN}
+    mapping = {"EBA": RegulationSource.EBA, "ESMA": RegulationSource.ESMA, "ECB": RegulationSource.ECB, "FATF": RegulationSource.FATF, "FCA": RegulationSource.FCA, "FinCEN": RegulationSource.FINCEN}
     return mapping.get(source, RegulationSource.EBA)
 
 

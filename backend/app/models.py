@@ -34,6 +34,7 @@ class RegulationCategory(str, enum.Enum):
 class RegulationSource(str, enum.Enum):
     EBA = "EBA"
     ESMA = "ESMA"
+    ECB = "ECB"
     FATF = "FATF"
     FCA = "FCA"
     FINCEN = "FinCEN"

@@ -8,7 +8,7 @@ import {
 } from "@/lib/api";
 
 const CATEGORIES = ["", "DORA", "MiCA", "PSD3", "AMLA", "FATF", "AML", "OTHER"];
-const SOURCES = ["", "EBA", "ESMA", "FATF", "FCA", "FinCEN"];
+const SOURCES = ["", "EBA", "ESMA", "ECB", "FATF", "FCA", "FinCEN"];
 
 function getCategoryClass(cat: string) {
     const map: Record<string, string> = {

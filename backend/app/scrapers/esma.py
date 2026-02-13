@@ -1,9 +1,8 @@
-"""ESMA (European Securities and Markets Authority) scraper."""
+"""ESMA (European Securities and Markets Authority) scraper — RSS + HTML hybrid."""
 
 from __future__ import annotations
 
 import logging
-from datetime import datetime
 
 from bs4 import BeautifulSoup
 
@@ -21,54 +20,67 @@ class ESMAScraper(BaseScraper):
     async def scrape(self) -> list[RegulationItem]:
         items: list[RegulationItem] = []
 
+        # ── Strategy 1: Try to discover RSS from the page ──
         html = await self.fetch(ESMA_NEWS_URL)
-        if not html:
-            return items
+        if html:
+            soup = BeautifulSoup(html, "lxml")
 
-        soup = BeautifulSoup(html, "lxml")
+            # Check for RSS link in head
+            rss_link = soup.select_one('link[type="application/rss+xml"]')
+            if rss_link and rss_link.get("href"):
+                rss_url = rss_link["href"]
+                if not rss_url.startswith("http"):
+                    rss_url = f"{ESMA_BASE}{rss_url}"
+                entries = await self.fetch_rss(rss_url)
+                for entry in entries[:25]:
+                    title = entry["title"]
+                    link = entry["link"]
+                    if not title or len(title) < 10 or not link:
+                        continue
+                    pub_date = self.parse_date(entry["published"]) if entry["published"] else None
+                    items.append(RegulationItem(
+                        title=title,
+                        url=link,
+                        source="ESMA",
+                        body_text=entry.get("summary", "")[:2000],
+                        published_date=pub_date,
+                        category=self.classify(title),
+                    ))
 
-        for row in soup.select(".view-content .views-row, article, .node--type-news")[:20]:
-            link_el = row.select_one("a[href]")
-            if not link_el:
-                continue
+            # ── Strategy 2: HTML scraping ─────────────────
+            if len(items) < 3:
+                for row in soup.select(".view-content .views-row, article, .node--type-news")[:20]:
+                    link_el = row.select_one("a[href]")
+                    if not link_el:
+                        continue
 
-            title = link_el.get_text(strip=True)
-            href = link_el["href"]
-            if not title or len(title) < 10:
-                continue
+                    title = link_el.get_text(strip=True)
+                    href = link_el["href"]
+                    if not title or len(title) < 10:
+                        continue
 
-            url = href if href.startswith("http") else f"{ESMA_BASE}{href}"
+                    url = href if href.startswith("http") else f"{ESMA_BASE}{href}"
+                    if any(i.url == url for i in items):
+                        continue
 
-            date_el = row.select_one("time, .date-display-single, .field--name-created")
-            pub_date = self._parse_date(date_el.get_text(strip=True)) if date_el else None
+                    date_el = row.select_one("time, .date-display-single, .field--name-created")
+                    pub_date = self.parse_date(date_el.get_text(strip=True)) if date_el else None
 
-            items.append(RegulationItem(
-                title=title,
-                url=url,
-                source="ESMA",
-                published_date=pub_date,
-                category=self._classify(title),
-            ))
+                    items.append(RegulationItem(
+                        title=title,
+                        url=url,
+                        source="ESMA",
+                        published_date=pub_date,
+                        category=self.classify(title),
+                    ))
+
+        # ── Fetch body for top items ──────────────────────
+        for item in items[:5]:
+            if not item.body_text:
+                item.body_text = await self.fetch_body(
+                    item.url,
+                    selectors=[".field--name-body", "article", ".node__content"],
+                )
 
         logger.info("[ESMA] Scraped %d items", len(items))
         return items
-
-    @staticmethod
-    def _classify(title: str) -> str:
-        t = title.upper()
-        if "MICA" in t or "CRYPTO" in t or "DIGITAL ASSET" in t:
-            return "MiCA"
-        if "DORA" in t or "DIGITAL OPERATIONAL" in t:
-            return "DORA"
-        if "AML" in t or "MONEY LAUNDERING" in t:
-            return "AMLA"
-        return "OTHER"
-
-    @staticmethod
-    def _parse_date(text: str) -> datetime | None:
-        for fmt in ("%d %B %Y", "%d/%m/%Y", "%Y-%m-%d", "%B %d, %Y"):
-            try:
-                return datetime.strptime(text.strip(), fmt)
-            except ValueError:
-                continue
-        return None

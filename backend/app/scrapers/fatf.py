@@ -1,9 +1,8 @@
-"""FATF (Financial Action Task Force) scraper."""
+"""FATF (Financial Action Task Force) scraper — HTML scraping + body fetch."""
 
 from __future__ import annotations
 
 import logging
-from datetime import datetime
 
 from bs4 import BeautifulSoup
 
@@ -21,6 +20,7 @@ class FATFScraper(BaseScraper):
     async def scrape(self) -> list[RegulationItem]:
         items: list[RegulationItem] = []
 
+        # FATF has no RSS feed — HTML scraping only
         html = await self.fetch(FATF_NEWS_URL)
         if not html:
             return items
@@ -40,24 +40,28 @@ class FATFScraper(BaseScraper):
             url = href if href.startswith("http") else f"{FATF_BASE}{href}"
 
             date_el = row.select_one(".date, time, .meta-date")
-            pub_date = self._parse_date(date_el.get_text(strip=True)) if date_el else None
+            pub_date = self.parse_date(date_el.get_text(strip=True)) if date_el else None
+
+            # FATF content can be AML-specific or general FATF
+            category = self.classify(title)
+            if category == "OTHER":
+                category = "FATF"
 
             items.append(RegulationItem(
                 title=title,
                 url=url,
                 source="FATF",
                 published_date=pub_date,
-                category="FATF",
+                category=category,
             ))
+
+        # Fetch body for top items
+        for item in items[:5]:
+            if not item.body_text:
+                item.body_text = await self.fetch_body(
+                    item.url,
+                    selectors=[".content-main", "article", ".field-items"],
+                )
 
         logger.info("[FATF] Scraped %d items", len(items))
         return items
-
-    @staticmethod
-    def _parse_date(text: str) -> datetime | None:
-        for fmt in ("%d %B %Y", "%B %Y", "%d/%m/%Y", "%Y-%m-%d"):
-            try:
-                return datetime.strptime(text.strip(), fmt)
-            except ValueError:
-                continue
-        return None

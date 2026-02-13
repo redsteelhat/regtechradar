@@ -1,9 +1,8 @@
-"""FinCEN (Financial Crimes Enforcement Network, US) scraper."""
+"""FinCEN (Financial Crimes Enforcement Network, US) scraper — HTML + body fetch."""
 
 from __future__ import annotations
 
 import logging
-from datetime import datetime
 
 from bs4 import BeautifulSoup
 
@@ -40,7 +39,7 @@ class FinCENScraper(BaseScraper):
             url = href if href.startswith("http") else f"{FINCEN_BASE}{href}"
 
             date_el = row.select_one(".date, time, .field--name-created, .datetime")
-            pub_date = self._parse_date(date_el.get_text(strip=True)) if date_el else None
+            pub_date = self.parse_date(date_el.get_text(strip=True)) if date_el else None
 
             items.append(RegulationItem(
                 title=title,
@@ -50,14 +49,13 @@ class FinCENScraper(BaseScraper):
                 category="AML",  # FinCEN is primarily AML-focused
             ))
 
+        # Fetch body for top items
+        for item in items[:5]:
+            if not item.body_text:
+                item.body_text = await self.fetch_body(
+                    item.url,
+                    selectors=[".field--name-body", "article", ".node__content"],
+                )
+
         logger.info("[FinCEN] Scraped %d items", len(items))
         return items
-
-    @staticmethod
-    def _parse_date(text: str) -> datetime | None:
-        for fmt in ("%B %d, %Y", "%m/%d/%Y", "%Y-%m-%d", "%d %B %Y"):
-            try:
-                return datetime.strptime(text.strip(), fmt)
-            except ValueError:
-                continue
-        return None

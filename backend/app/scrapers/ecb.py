@@ -1,28 +1,29 @@
-"""EBA (European Banking Authority) scraper — RSS + HTML hybrid."""
+"""ECB (European Central Bank) scraper — RSS + HTML hybrid."""
 
 from __future__ import annotations
 
 import logging
 
-from bs4 import BeautifulSoup
-
 from app.scrapers.base import BaseScraper, RegulationItem
 
 logger = logging.getLogger(__name__)
 
-EBA_BASE = "https://www.eba.europa.eu"
-EBA_RSS_URL = f"{EBA_BASE}/rss/press-releases.xml"
-EBA_NEWS_URL = f"{EBA_BASE}/newsroom/press-releases"
+ECB_BASE = "https://www.ecb.europa.eu"
+ECB_RSS_URL = f"{ECB_BASE}/rss/press.html"
+ECB_SUPERVISION_URL = "https://www.bankingsupervision.europa.eu/press/pr/html/index.en.html"
+
+# ECB press release RSS – XML feed URL
+ECB_RSS_FEED = f"{ECB_BASE}/rss/press.xml"
 
 
-class EBAScraper(BaseScraper):
-    source_name = "EBA"
+class ECBScraper(BaseScraper):
+    source_name = "ECB"
 
     async def scrape(self) -> list[RegulationItem]:
         items: list[RegulationItem] = []
 
         # ── Strategy 1: RSS feed ──────────────────────────
-        entries = await self.fetch_rss(EBA_RSS_URL)
+        entries = await self.fetch_rss(ECB_RSS_FEED)
         for entry in entries[:25]:
             title = entry["title"]
             link = entry["link"]
@@ -34,20 +35,21 @@ class EBAScraper(BaseScraper):
             items.append(RegulationItem(
                 title=title,
                 url=link,
-                source="EBA",
+                source="ECB",
                 body_text=entry.get("summary", "")[:2000],
                 published_date=pub_date,
                 category=self.classify(title),
             ))
 
-        # ── Strategy 2: HTML fallback ─────────────────────
-        if len(items) < 3:
-            html = await self.fetch(EBA_NEWS_URL)
+        # ── Strategy 2: HTML fallback (banking supervision) ──
+        if len(items) < 5:
+            html = await self.fetch(ECB_SUPERVISION_URL)
             if html:
+                from bs4 import BeautifulSoup
                 soup = BeautifulSoup(html, "lxml")
-                for article in soup.select("article, .view-content .views-row, .item-list li")[:20]:
-                    link_el = article.select_one("a[href]")
-                    if not link_el:
+                for row in soup.select("article, .item, .content-box, dt, .title")[:20]:
+                    link_el = row.select_one("a[href]") or (row if row.name == "a" else None)
+                    if not link_el or not link_el.get("href"):
                         continue
 
                     title = link_el.get_text(strip=True)
@@ -55,28 +57,27 @@ class EBAScraper(BaseScraper):
                     if not title or len(title) < 10:
                         continue
 
-                    url = href if href.startswith("http") else f"{EBA_BASE}{href}"
+                    url = href if href.startswith("http") else f"https://www.bankingsupervision.europa.eu{href}"
+
+                    # Avoid duplicates within this scrape
                     if any(i.url == url for i in items):
                         continue
-
-                    date_el = article.select_one("time, .date, .field--name-created")
-                    pub_date = self.parse_date(date_el.get_text(strip=True)) if date_el else None
 
                     items.append(RegulationItem(
                         title=title,
                         url=url,
-                        source="EBA",
-                        published_date=pub_date,
+                        source="ECB",
+                        published_date=None,
                         category=self.classify(title),
                     ))
 
-        # ── Fetch body for top items ──────────────────────
+        # ── Fetch body text for new items (top 5 only to limit requests) ──
         for item in items[:5]:
             if not item.body_text:
                 item.body_text = await self.fetch_body(
                     item.url,
-                    selectors=[".field--name-body", "article", ".node__content"],
+                    selectors=[".section", ".content-box", "article", ".ecb-pressRelease"],
                 )
 
-        logger.info("[EBA] Scraped %d items", len(items))
+        logger.info("[ECB] Scraped %d items", len(items))
         return items
